@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Your Dashboard</h2>
+        <p>Welcome! Choose a topic to start.</p>
+        
+        <button class="collapsible">Science</button>
+        <div class="collapsible-content">
+            <a href="modules/grade10/science/nacl-reaction/index.html" class="module-link">
+                The Na + Cl Reaction
+            </a>
+            <a href="modules/grade10/science/gravity/index.html" class="module-link">
+                Understanding Gravity
+            </a>
+        </div>
+
+        <button class="collapsible">History</button>
+        <div class="collapsible-content">
+            <a href="modules/grade10/history/french-revolution/index.html" class="module-link">
+                The French Revolution
+            </a>
+        </div>
+        
+        <br>
+        <button id="logoutButton" style="margin-top: 20px;">Logout</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // --- LOGOUT SCRIPT ---
+        const { createClient } = supabase;
+        // !! IMPORTANT: PASTE YOUR CREDENTIALS HERE !!
+        const SUPABASE_URL = 'https://akmodsqmyetugbncgmfg.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbW9kc3FteWV0dWdibmNnbWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MzU0NzksImV4cCI6MjA3NzMxMTQ3OX0.7T_1CzWY56JS2n3LDvnidtzMF-OFndeVSezNo2bbaB8';
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            await _supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+        // --- COLLAPSIBLE MENU SCRIPT ---
+        var coll = document.getElementsByClassName("collapsible");
+        for (let i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.display === "block") {
+                    content.style.display = "none";
+                } else {
+                    content.style.display = "block";
+                }
+            });
+        }
+    </script>
+    <script>
+        /**
+         * This function runs as soon as the dashboard page loads.
+         * It fetches the user's progress and updates the UI.
+         */
+        async function loadUserProgress() {
+            console.log("Checking user progress...");
+            
+            // 1. Get the currently logged-in user
+            // We use the same _supabase client from the logout script
+            const { data: { user } } = await _supabase.auth.getUser();
+    
+            if (!user) {
+                console.log("No user found, cannot check progress.");
+                return;
+            }
+    
+            // 2. Fetch all rows from 'user_progress' that match the user's ID
+            const { data: progress, error } = await _supabase
+                .from('user_progress')
+                .select('module_name') // We only need the module names
+                .eq('user_id', user.id);
+    
+            if (error) {
+                console.error("Error fetching progress:", error.message);
+                return;
+            }
+    
+            if (progress.length === 0) {
+                console.log("User has no progress yet.");
+                return;
+            }
+    
+            // 3. Create a simple list of completed module names
+            const completedModules = progress.map(item => item.module_name);
+            console.log("Completed modules:", completedModules);
+    
+            // 4. Find the links on the page and add a checkmark
+            
+            // Check for 'nacl-reaction'
+            if (completedModules.includes('nacl-reaction')) {
+                // Find the link by its unique href
+                const naclLink = document.querySelector('a[href*="nacl-reaction"]');
+                if (naclLink) {
+                    naclLink.innerHTML = "✅ " + naclLink.innerHTML;
+                }
+            }
+    
+            // Check for 'gravity'
+            if (completedModules.includes('gravity')) {
+                const gravityLink = document.querySelector('a[href*="gravity"]');
+                if (gravityLink) {
+                    gravityLink.innerHTML = "✅ " + gravityLink.innerHTML;
+                }
+            }
+
+            // Check for 'french-revolution'
+            if (completedModules.includes('french-revolution')) {
+                // Find the link by its unique href
+                const historyLink = document.querySelector('a[href*="french-revolution"]');
+                if (historyLink) {
+                    historyLink.innerHTML = "✅ " + historyLink.innerHTML;
+                }
+            }
+        }
+    
+        // Run the function when the page loads
+        loadUserProgress();
+    </script>
+</body>
+</html>
