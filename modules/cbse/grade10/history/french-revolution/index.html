@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The French Revolution</title>
+    <link rel="stylesheet" href="../../../../../assets/css/main.css">
+    <style>
+        /* Styles specific to the History module */
+        #animation-canvas {
+            background-color: #fdf5e6; /* Old paper color */
+            padding: 20px;
+            box-sizing: border-box; /* Ensures padding doesn't break layout */
+        }
+        #scene-text {
+            font-size: 1.4rem;
+            font-family: 'Georgia', serif;
+            opacity: 0; /* Start hidden */
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+
+        <a href="../../../../../dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="quiz-container">
+
+            <div class="quiz-simulation-panel">
+                <h2>Simulation: The French Revolution</h2>
+                
+                <div id="animation-canvas">
+                    <p id="scene-text">Let's learn about the French Revolution.</p>
+                </div>
+            </div>
+
+            <div class="quiz-questions-panel">
+                <div id="quiz-area">
+                    <h3>Loading Quiz...</h3>
+                </div>
+            </div>
+
+        </div> </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../../../../assets/js/config.js"></script>
+    <script src="french_revolution.js"></script>
+</body>
+</html>

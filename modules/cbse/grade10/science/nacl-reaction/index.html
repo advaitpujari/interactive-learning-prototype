@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Na + Cl Reaction</title>
+    <link rel="stylesheet" href="../../../../../assets/css/main.css">
+    <style>
+        /* These styles are specific to this Na+Cl module */
+        .atom {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: absolute;
+            font-size: 1.1rem;
+        }
+        #na-atom { 
+            background-color: #8e44ad; 
+            color: white; 
+            left: 30%; 
+            top: 150px; 
+        }
+        #cl-atom { 
+            background-color: #27ae60; 
+            color: white; 
+            right: 30%; 
+            top: 150px; 
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+
+        <a href="../../../../../dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="quiz-container">
+
+            <div class="quiz-simulation-panel">
+                <h2>Simulation: The Na + Cl Reaction</h2>
+                <div id="animation-canvas">
+                    <div id="na-atom" class="atom">Na</div>
+                    <div id="cl-atom" class="atom">Cl</div>
+                </div>
+            </div>
+
+            <div class="quiz-questions-panel">
+                <div id="quiz-area">
+                    <h3>Loading Quiz...</h3>
+                </div>
+            </div>
+
+        </div> </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../../../../assets/js/config.js"></script>
+    <script src="simulation.js"></script>
+</body>
+</html>

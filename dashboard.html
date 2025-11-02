@@ -7,127 +7,175 @@
 </head>
 <body>
     <div class="container">
-        <h2>Your Dashboard</h2>
-        <p>Welcome! Choose a topic to start.</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Your Dashboard</h2>
+            <a href="profile.html" style="font-weight: 600; text-decoration: none;">My Profile</a>
+        </div>
+        <p style="margin-top: 0; color: #65676b;">Welcome! Here are your modules:</p>
         
-        <button class="collapsible">Science</button>
-        <div class="collapsible-content">
-            <a href="modules/grade10/science/nacl-reaction/index.html" class="module-link">
-                The Na + Cl Reaction
-            </a>
-            <a href="modules/grade10/science/gravity/index.html" class="module-link">
-                Understanding Gravity
-            </a>
-        </div>
+        <div id="content-cbse-10" class="content-group" style="display: none;">
+            
+            <h2 class="subject-header">Science</h2>
+            <div class="module-grid">
+                <a href="modules/cbse/grade10/science/nacl-reaction/index.html" class="module-card" id="module-nacl-reaction">
+                    <div class="module-card-image img-science">Science</div>
+                    <div class="module-card-content">
+                        <h3>The Na + Cl Reaction</h3>
+                        <div class="module-card-progress">
+                            <span class="icon">○</span>
+                            <span class="status-text">Not Started</span>
+                        </div>
+                    </div>
+                </a>
 
-        <button class="collapsible">History</button>
-        <div class="collapsible-content">
-            <a href="modules/grade10/history/french-revolution/index.html" class="module-link">
-                The French Revolution
-            </a>
-        </div>
+                <a href="modules/cbse/grade10/science/gravity/index.html" class="module-card" id="module-gravity">
+                    <div class="module-card-image img-science">Science</div>
+                    <div class="module-card-content">
+                        <h3>Understanding Gravity</h3>
+                        <div class="module-card-progress">
+                            <span class="icon">○</span>
+                            <span class="status-text">Not Started</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="modules/cbse/grade10/science/light/index.html" class="module-card" id="module-light-reflection">
+                    <div class="module-card-image img-science">Science</div>
+                    <div class="module-card-content">
+                        <h3>Light</h3>
+                        <div class="module-card-progress">
+                            <span class="icon">○</span>
+                            <span class="status-text">Not Started</span>
+                        </div>
+                    </div>
+                </a>
+            </div> <h2 class="subject-header">History</h2>
+            <div class="module-grid">
+                <a href="modules/cbse/grade10/history/french-revolution/index.html" class="module-card" id="module-french-revolution">
+                    <div class="module-card-image img-history">History</div>
+                    <div class="module-card-content">
+                        <h3>The French Revolution</h3>
+                        <div class="module-card-progress">
+                            <span class="icon">○</span>
+                            <span class="status-text">Not Started</span>
+                        </div>
+                    </div>
+                </a>
+            </div> </div> <p id="no-content-message" style="display: none;">
+            Content for your board and grade is coming soon!
+        </p>
         
         <br>
-        <button id="logoutButton" style="margin-top: 20px;">Logout</button>
+        <button id="logoutButton" style="margin-top: 20px; max-width: 120px; float: right;">Logout</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
     
     <script>
-        // --- LOGOUT SCRIPT ---
         const { createClient } = supabase;
-        // !! IMPORTANT: PASTE YOUR CREDENTIALS HERE !!
-        const SUPABASE_URL = 'https://akmodsqmyetugbncgmfg.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbW9kc3FteWV0dWdibmNnbWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MzU0NzksImV4cCI6MjA3NzMxMTQ3OX0.7T_1CzWY56JS2n3LDvnidtzMF-OFndeVSezNo2bbaB8';
         const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+
+        // --- LOGOUT SCRIPT ---
         document.getElementById('logoutButton').addEventListener('click', async () => {
             await _supabase.auth.signOut();
             window.location.href = 'index.html';
         });
 
-        // --- COLLAPSIBLE MENU SCRIPT ---
-        var coll = document.getElementsByClassName("collapsible");
-        for (let i = 0; i < coll.length; i++) {
-            coll[i].addEventListener("click", function() {
-                this.classList.toggle("active");
-                var content = this.nextElementSibling;
-                if (content.style.display === "block") {
-                    content.style.display = "none";
-                } else {
-                    content.style.display = "block";
-                }
-            });
-        }
-    </script>
-    <script>
-        /**
-         * This function runs as soon as the dashboard page loads.
-         * It fetches the user's progress and updates the UI.
-         */
-        async function loadUserProgress() {
-            console.log("Checking user progress...");
-            
-            // 1. Get the currently logged-in user
-            // We use the same _supabase client from the logout script
+
+        // --- DASHBOARD LOADING LOGIC ---
+        async function loadDashboard() {
+            // 1. Get the user
             const { data: { user } } = await _supabase.auth.getUser();
-    
             if (!user) {
-                console.log("No user found, cannot check progress.");
+                window.location.href = 'index.html';
                 return;
             }
-    
-            // 2. Fetch all rows from 'user_progress' that match the user's ID
+
+            // 2. Get the user's profile
+            const { data: profile, error: profileError } = await _supabase
+                .from('profiles')
+                .select('board, grade')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError || !profile) {
+                console.error('Error fetching profile:', profileError);
+                document.getElementById('no-content-message').style.display = 'block';
+                return;
+            }
+
+            // 3. Build and show the correct content div
+            const contentId = `content-${profile.board}-${profile.grade}`;
+            const contentDiv = document.getElementById(contentId);
+            
+            if (contentDiv) {
+                contentDiv.style.display = 'block';
+                // 4. Load progress *after* content is visible
+                loadUserProgress(user.id);
+            } else {
+                document.getElementById('no-content-message').style.display = 'block';
+            }
+        }
+        
+        /*
+         * We DELETED the setupCollapsibles() function.
+         * It's not needed anymore!
+         */
+
+        /**
+         * UPDATED loadUserProgress function
+         * This now adds a class to the card instead of an emoji.
+         */
+        async function loadUserProgress(userId) {
             const { data: progress, error } = await _supabase
                 .from('user_progress')
-                .select('module_name') // We only need the module names
-                .eq('user_id', user.id);
-    
-            if (error) {
-                console.error("Error fetching progress:", error.message);
-                return;
-            }
-    
-            if (progress.length === 0) {
-                console.log("User has no progress yet.");
-                return;
-            }
-    
-            // 3. Create a simple list of completed module names
+                .select('module_name')
+                .eq('user_id', userId);
+
+            if (error || !progress) return; 
+
             const completedModules = progress.map(item => item.module_name);
-            console.log("Completed modules:", completedModules);
-    
-            // 4. Find the links on the page and add a checkmark
-            
+
             // Check for 'nacl-reaction'
             if (completedModules.includes('nacl-reaction')) {
-                // Find the link by its unique href
-                const naclLink = document.querySelector('a[href*="nacl-reaction"]');
-                if (naclLink) {
-                    naclLink.innerHTML = "✅ " + naclLink.innerHTML;
-                }
+                updateCard('module-nacl-reaction');
             }
-    
+            
             // Check for 'gravity'
             if (completedModules.includes('gravity')) {
-                const gravityLink = document.querySelector('a[href*="gravity"]');
-                if (gravityLink) {
-                    gravityLink.innerHTML = "✅ " + gravityLink.innerHTML;
-                }
+                updateCard('module-gravity');
             }
 
             // Check for 'french-revolution'
             if (completedModules.includes('french-revolution')) {
-                // Find the link by its unique href
-                const historyLink = document.querySelector('a[href*="french-revolution"]');
-                if (historyLink) {
-                    historyLink.innerHTML = "✅ " + historyLink.innerHTML;
-                }
+                updateCard('module-french-revolution');
+            }
+
+            // Check for 'light'
+            if (completedModules.includes('light-reflection')) {
+                updateCard('module-light-reflection');
             }
         }
-    
-        // Run the function when the page loads
-        loadUserProgress();
+
+        /**
+         * Helper function to update a card's UI to "Completed"
+         */
+        function updateCard(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+
+            card.classList.add('completed'); // This triggers the CSS
+            const icon = card.querySelector('.icon');
+            const statusText = card.querySelector('.status-text');
+
+            if (icon) icon.textContent = '✅';
+            if (statusText) statusText.textContent = 'Completed';
+        }
+
+        // --- RUN EVERYTHING ON PAGE LOAD ---
+        loadDashboard();
     </script>
 </body>
 </html>

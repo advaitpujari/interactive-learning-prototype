@@ -1,0 +1,2 @@
+# Ignore our secret keys
+assets/js/config.js

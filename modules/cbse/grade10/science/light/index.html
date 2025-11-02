@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Light, Reflection & Refraction</title>
+    <link rel="stylesheet" href="../../../../../assets/css/main.css">
+    <style>
+        /* These styles are specific to this Light module */
+        #optical-bench {
+            position: relative;
+            height: 350px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            overflow: hidden;
+        }
+        #principal-axis {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #666;
+            top: 50%;
+            left: 0;
+            z-index: 1;
+        }
+        #plane-mirror {
+            position: absolute;
+            width: 6px;
+            height: 120px;
+            background: linear-gradient(135deg, #c0c0c0, #e0e0e0);
+            border-left: 3px solid #777;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .sim-object {
+            position: absolute;
+            font-size: 2.5rem; /* Make candle bigger */
+            z-index: 5;
+            top: 50%;
+            transform: translateY(-80%); /* Adjust to sit on the line */
+        }
+        .sim-image {
+            position: absolute;
+            font-size: 2.5rem;
+            z-index: 5;
+            top: 50%;
+            transform: translateY(-80%);
+            opacity: 0.5; /* Virtual images are dimmer */
+        }
+        
+        /* Styles for rays (we will use this in the next step) */
+        .ray {
+            position: absolute;
+            height: 2px;
+            background-color: #f39c12; /* Orange light */
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+        <a href="../../../../../dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="quiz-container">
+
+            <div class="quiz-simulation-panel">
+                <h2>Simulation: The Law of Reflection</h2>
+                <div id="optical-bench">
+                    <div id="principal-axis"></div>
+                    <div id="plane-mirror"></div>
+                    
+                    <div id="object-candle" class="sim-object" style="left: 30%;">🕯️</div>
+                    
+                    <div id="image-virtual" class="sim-image" style="right: 30%;">🕯️</div>
+                </div>
+            </div>
+
+            <div class="quiz-questions-panel">
+                <div id="quiz-area">
+                    <h3>Loading Quiz...</h3>
+                </div>
+            </div>
+
+        </div> 
+    </div> 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../../../../../assets/js/config.js"></script>
+    <script src="simulation.js"></script>
+</body>
+</html>

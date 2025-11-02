@@ -1,7 +1,3 @@
-// --- SUPABASE CLIENT ---
-// !! PASTE YOUR URL AND KEY HERE !!
-const SUPABASE_URL = 'https://akmodsqmyetugbncgmfg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbW9kc3FteWV0dWdibmNnbWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MzU0NzksImV4cCI6MjA3NzMxMTQ3OX0.7T_1CzWY56JS2n3LDvnidtzMF-OFndeVSezNo2bbaB8';
 const { createClient } = supabase;
 const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -118,27 +114,46 @@ function loadQuestion(index) {
             `<button class="answer-btn" onclick="handleAnswer(${i})">${answer}</button>`;
     });
 }
-
+ 
 // This MUST be on the window to be callable by 'onclick'
 window.handleAnswer = (selectedIndex) => {
     const q = questions[currentQuestionIndex];
-    const feedbackEl = document.getElementById('quiz-feedback'); 
+    const feedbackEl = document.getElementById('quiz-feedback');
+    
+    // Get all answer buttons
+    const allButtons = document.querySelectorAll('.answer-btn');
+    // Get the specific button that was clicked
+    const clickedButton = allButtons[selectedIndex];
 
     if (selectedIndex === q.correctIndex) {
+        // --- CORRECT ---
         feedbackEl.textContent = q.feedback || 'Correct!';
         feedbackEl.style.color = 'green';
+        
+        // Disable ALL buttons
+        allButtons.forEach(btn => btn.disabled = true);
+        
+        // Style the correct button
+        clickedButton.classList.add('correct');
+        
+        // Move to next step
         currentQuestionIndex++; 
-
+        
         if (currentQuestionIndex === 1) runScene2();
         else if (currentQuestionIndex === 2) runScene3();
-
+        
         setTimeout(() => {
             loadQuestion(currentQuestionIndex);
         }, 1500); 
-
+        
     } else {
-        feedbackEl.textContent = 'Try again!';
+        // --- INCORRECT ---
+        feedbackEl.textContent = 'That\'s not it. Try again!';
         feedbackEl.style.color = 'red';
+        
+        // Style the wrong button and disable it
+        clickedButton.classList.add('wrong');
+        clickedButton.disabled = true;
     }
 }
 

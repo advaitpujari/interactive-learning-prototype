@@ -2,20 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Project</title>
+    <title>Login - Interactive Learning</title>
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
 </head>
 <body>
-    <div class="container">
-        <h3>Interactive Learning</h3>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Password">
-        <button id="loginButton">Login</button>
-        <button id="signupButton">Sign Up</button>
-        <p id="message"></p>
-    </div>
+
+    <main>
+        <h1 class="project-title">shikshAI</h1>
+
+        <div class="auth-container">
+        
+            <div id="login-form">
+                <h3>Login</h3>
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Email" required>
+                
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Password" required>
+                
+                <p class="forgot-password-link">
+                    <span id="show-reset">Forgot Password?</span>
+                </p>
+                
+                <button id="loginButton">Login</button>
+                
+                <p class="toggle-link">
+                    Need an account? <span id="show-signup">Sign up</span>
+                </p>
+            </div>
+
+            <div id="signup-form" style="display: none;">
+                <h3>Create Account</h3>
+                
+                <label for="signup-board">Select your board:</label>
+                <select id="signup-board" name="board" required>
+                    <option value="cbse">CBSE</option>
+                    <option value="icse" disabled>ICSE (Coming Soon)</option>
+                    <option value="state_board" disabled>State Board (Coming Soon)</option>
+                </select>
+
+                <label for="signup-grade">Select your grade:</label>
+                <select id="signup-grade" name="grade" required>
+                    <option value="10">Grade 10</option>
+                    <option value="9" disabled>Grade 9</option>
+                    <option value="8" disabled>Grade 8</option>
+                    <option value="7" disabled>Grade 7</option>
+                    <option value="6" disabled>Grade 6</option>
+                    <option value="5" disabled>Grade 5</option>
+                    <option value="4" disabled>Grade 4</option>
+                    <option value="3" disabled>Grade 3</option>
+                    <option value="2" disabled>Grade 2</option>
+                    <option value="1" disabled>Grade 1</option>
+                </select>
+
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                
+                <button id="signupButton">Create Account</button>
+                
+                <p class="toggle-link">
+                    Already have an account? <span id="show-login-from-signup">Log in</span>
+                </p>
+            </div>
+            
+            <div id="reset-form" style="display: none;">
+                <h3>Reset Password</h3>
+                <p>Enter your email to receive a password reset link.</p>
+                
+                <label for="reset-email">Email</label>
+                <input type="email" id="reset-email" placeholder="Your Email" required>
+                
+                <button id="resetButton">Send Reset Link</button>
+                
+                <p class="toggle-link">
+                    Remembered your password? <span id="show-login-from-reset">Back to Login</span>
+                </p>
+            </div>
+
+            <div id="update-password-form" style="display: none;">
+                <h3>Set Your New Password</h3>
+                <p>You are logged in. Enter a new password below.</p>
+                
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="Enter new password" required>
+                
+                <button id="updatePasswordButton">Update Password</button>
+            </div>
+            
+            <p id="message"></p>
+
+        </div> </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/config.js"></script>
     <script src="assets/js/auth.js"></script>
 </body>
 </html>

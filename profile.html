@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Profile</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        /* Add some specific styles for the profile page */
+        .profile-container {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .profile-container h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .profile-details p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .profile-details strong {
+            color: #333;
+        }
+        #completed-modules-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #completed-modules-list li {
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+
+        <a href="dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="profile-grid">
+            
+            <div class="profile-details-card">
+                <h3>My Details</h3>
+                <p>
+                    <strong>Email:</strong> 
+                    <span id="profile-email">Loading...</span>
+                </p>
+                <p>
+                    <strong>Board:</strong> 
+                    <span id="profile-board">Loading...</span>
+                </p>
+                <p>
+                    <strong>Grade:</strong> 
+                    <span id="profile-grade">Loading...</span>
+                </p>
+            </div>
+
+            <div class="completed-modules-container">
+                <h3>Completed Modules</h3>
+                
+                <div id="completed-modules-grid">
+                    <p id="loading-modules">Loading...</p>
+                </div>
+            </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="assets/js/config.js"></script>
+    
+    <script>
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- GET HTML ELEMENTS ---
+        const emailEl = document.getElementById('profile-email');
+        const boardEl = document.getElementById('profile-board');
+        const gradeEl = document.getElementById('profile-grade');
+        const modulesGridEl = document.getElementById('completed-modules-grid');
+        const loadingModulesEl = document.getElementById('loading-modules');
+
+        /**
+         * Runs when the profile page loads
+         */
+        async function loadProfileData() {
+            // 1. Get the current user
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            emailEl.textContent = user.email;
+
+            // 2. Fetch data from the 'profiles' table
+            const { data: profile, error: profileError } = await _supabase
+                .from('profiles')
+                .select('board, grade')
+                .eq('id', user.id)
+                .single(); 
+
+            if (profile) {
+                boardEl.textContent = profile.board.toUpperCase();
+                gradeEl.textContent = profile.grade;
+            } else {
+                console.error('No profile found:', profileError);
+                boardEl.textContent = "Not set";
+                gradeEl.textContent = "Not set";
+            }
+
+            // 3. Fetch data from the 'user_progress' table
+            const { data: progress, error: progressError } = await _supabase
+                .from('user_progress')
+                .select('module_name')
+                .eq('user_id', user.id);
+
+            // 4. Display the completed modules
+            loadingModulesEl.style.display = 'none'; // Hide "Loading..."
+            if (progress && progress.length > 0) {
+                progress.forEach(item => {
+                    // Create the new badge element
+                    const badge = document.createElement('div');
+                    badge.className = 'module-badge';
+                    
+                    // Format the name (e.g., "nacl-reaction" -> "NaCl Reaction")
+                    const formattedName = item.module_name
+                        .replace(/-/g, ' ')
+                        .replace(/\b\w/g, char => char.toUpperCase());
+
+                    badge.innerHTML = `
+                        <span class="module-badge-icon">✅</span>
+                        <span>${formattedName}</span>
+                    `;
+                    modulesGridEl.appendChild(badge);
+                });
+            } else {
+                // No modules completed yet
+                const p = document.createElement('p');
+                p.textContent = "You haven't completed any modules yet.";
+                modulesGridEl.appendChild(p);
+            }
+        }
+
+        // --- RUN ON PAGE LOAD ---
+        loadProfileData();
+    </script>
+</body>
+</html>

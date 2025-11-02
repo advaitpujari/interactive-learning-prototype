@@ -1,7 +1,3 @@
-// --- SUPABASE CLIENT ---
-// !! PASTE YOUR URL AND KEY HERE !!
-const SUPABASE_URL = 'https://akmodsqmyetugbncgmfg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbW9kc3FteWV0dWdibmNnbWZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MzU0NzksImV4cCI6MjA3NzMxMTQ3OX0.7T_1CzWY56JS2n3LDvnidtzMF-OFndeVSezNo2bbaB8';
 const { createClient } = supabase;
 const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -13,17 +9,20 @@ const questions = [
     {
         question: "What is the force that pulls this apple toward the Earth?",
         answers: ["Magnetism", "Gravity", "Friction"],
-        correctIndex: 1
+        correctIndex: 1,
+        feedback: "Correct! It's gravity!"
     },
     {
         question: "Who is famous for discovering gravity by seeing an apple fall?",
         answers: ["Einstein", "Galileo", "Newton"],
-        correctIndex: 2
+        correctIndex: 2,
+        feedback: "Correct! It was Newton."
     },
     {
         question: "What will happen if I let go of the apple?",
         answers: ["It will float", "It will fall", "It will fly up"],
-        correctIndex: 1
+        correctIndex: 1,
+        feedback: "Correct! Watch it fall!"
     }
 ];
 
@@ -54,7 +53,6 @@ function runScene2() {
     });
 }
 
-// Final animation: Make the apple fall
 async function runFinalScene() {
     anime({
         targets: '#apple',
@@ -66,33 +64,28 @@ async function runFinalScene() {
     // Display the final message
     quizArea.innerHTML = '<h2 style="color: green;">That\'s Gravity!</h2>';
 
+    // --- SAVE PROGRESS TO SUPABASE ---
     try {
-        // 1. Get the logged-in user
         const { data: { user } } = await _supabase.auth.getUser();
-
         if (user) {
-            // 2. Prepare the data to insert
             const newProgress = {
                 user_id: user.id,
-                module_name: 'gravity' // <-- The only change is here
+                module_name: 'gravity' 
             };
-
-            // 3. Insert the row into the 'user_progress' table
             const { error } = await _supabase.from('user_progress').insert(newProgress);
-            
             if (error) {
                 console.warn("Error saving progress:", error.message);
             } else {
-                console.log("Progress saved!");
+                console.log("Gravity progress saved!");
             }
         }
     } catch (e) {
-        console.error("Error getting user or saving progress:", e);
+        console.error("Error saving progress:", e);
     }
 }
 
-// --- QUIZ LOGIC ---
-// This part is identical to your nacl-reaction script
+// --- QUIZ LOGIC (Self-contained) ---
+
 function loadQuestion(index) {
     if (index >= questions.length) {
         runFinalScene();
@@ -103,7 +96,7 @@ function loadQuestion(index) {
         <h3>Quiz ${index + 1}:</h3>
         <p>${q.question}</p>
         <div id="answers"></div>
-        <p id="quiz-feedback"></p>
+        <p id="quiz-feedback"></css=>
     `;
     const answersContainer = document.getElementById('answers');
     q.answers.forEach((answer, i) => {
@@ -112,34 +105,53 @@ function loadQuestion(index) {
     });
 }
 
-function handleAnswer(selectedIndex) {
+
+// --- !! NEW UPDATED FUNCTION !! ---
+// This MUST be on the window to be callable by 'onclick'
+window.handleAnswer = (selectedIndex) => {
     const q = questions[currentQuestionIndex];
-    const feedbackEl = document.getElementById('quiz-feedback'); 
+    const feedbackEl = document.getElementById('quiz-feedback');
+    
+    // Get all answer buttons
+    const allButtons = document.querySelectorAll('.answer-btn');
+    // Get the specific button that was clicked
+    const clickedButton = allButtons[selectedIndex];
 
     if (selectedIndex === q.correctIndex) {
+        // --- CORRECT ---
+        feedbackEl.textContent = q.feedback || 'Correct!';
+        feedbackEl.style.color = 'green';
+        
+        // Disable ALL buttons
+        allButtons.forEach(btn => btn.disabled = true);
+        
+        // Style the correct button
+        clickedButton.classList.add('correct');
+        
+        // Move to next step
         currentQuestionIndex++; 
         
-        // Trigger animations based on which question was just answered
-        if (currentQuestionIndex === 1) {
-            feedbackEl.textContent = 'Correct! It\'s gravity!';
-            runScene2(); // Wiggle the apple
-        } else if (currentQuestionIndex === 2) {
-            feedbackEl.textContent = 'Correct! It was Newton.';
-            runScene2(); // Wiggle again
-        } else {
-            feedbackEl.textContent = 'Correct! Watch it fall!';
-        }
+        // This is your original logic for the gravity scenes
+        if (currentQuestionIndex === 1) runScene2();
+        else if (currentQuestionIndex === 2) runScene2();
         
         setTimeout(() => {
             loadQuestion(currentQuestionIndex);
         }, 1500); 
         
     } else {
-        feedbackEl.textContent = 'Try again!';
+        // --- INCORRECT ---
+        feedbackEl.textContent = 'That\'s not it. Try again!';
         feedbackEl.style.color = 'red';
+        
+        // Style the wrong button and disable it
+        clickedButton.classList.add('wrong');
+        clickedButton.disabled = true;
     }
 }
+// --- !! END OF UPDATED FUNCTION !! ---
 
-// --- START THE SIMULATION ---
-runScene1(); 
+
+// --- START ---
+runScene1();
 loadQuestion(0);

@@ -1,0 +1,245 @@
+Template: How to Add a New Module to shikshAIFollow this checklist to add a new learning module. For this example, we will assume we are adding a new Science module called "Photosynthesis" for CBSE Grade 10.Step 1: Create the Module FolderNavigate to the correct content directory for the user.modules/cbse/10/science/Create a new folder for your module. The name should be short and use hyphens (this will be its unique ID).modules/cbse/10/science/photosynthesis/Step 2: Create the index.html FileCreate a new file: modules/cbse/10/science/photosynthesis/index.htmlCopy and paste the code below.What to change:Change the <title> text.Change the <h2> text.Update the style block with CSS for your new simulation elements (e.g., #sun, #plant).Update the animation-canvas div with your new HTML elements.Make sure the final <script> tag points to your new JavaScript file (e.g., photosynthesis.js).<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- 1. CHANGE THIS TITLE -->
+    <title>Photosynthesis</title>
+    
+    <link rel="stylesheet" href="../../../../../assets/css/main.css">
+    
+    <!-- 2. ADD YOUR MODULE-SPECIFIC CSS HERE -->
+    <style>
+        /* Example: */
+        #sun {
+            width: 80px;
+            height: 80px;
+            background-color: #f1c40f;
+            border-radius: 50%;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        #plant {
+            width: 60px;
+            height: 100px;
+            background-color: #2ecc71;
+            position: absolute;
+            bottom: 0px;
+            left: 45%;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="page-container">
+
+        <!-- Back link (no change needed) -->
+        <a href="../../../../../dashboard.html" class="back-link">&larr; Back to Dashboard</a>
+
+        <div class="quiz-container">
+
+            <!-- LEFT PANEL (SIMULATION) -->
+            <div class="quiz-simulation-panel">
+                <!-- 3. CHANGE THIS HEADER -->
+                <h2>Simulation: Photosynthesis</h2>
+                
+                <!-- 4. ADD YOUR HTML ELEMENTS FOR THE SIMULATION -->
+                <div id="animation-canvas">
+                    <div id="sun"></div>
+                    <div id="plant"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL (QUIZ) -->
+            <div class="quiz-questions-panel">
+                <div id="quiz-area">
+                    <h3>Loading Quiz...</h3>
+                </div>
+            </div>
+
+        </div> <!-- End quiz-container -->
+
+    </div> <!-- End page-container -->
+
+    <!-- Scripts (no change needed) -->
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js](https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js)"></script>
+    <script src="[https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2)"></script>
+    
+    <!-- 5. CHANGE THIS FILENAME -->
+    <script src="photosynthesis.js"></script>
+</body>
+</html>
+Step 3: Create the JavaScript FileCreate a new file: modules/cbse/10/science/photosynthesis/photosynthesis.jsCopy and paste the code below.What to change:Paste your Supabase credentials at the top.Change the questions array to your new quiz content.Update all your runScene... functions with new animations.Change the module_name in the runFinalScene function to your folder's unique ID (e.g., 'photosynthesis').Update the runScene logic inside window.handleAnswer to match your new scenes.// --- SUPABASE CLIENT ---
+// 1. PASTE YOUR SUPABASE URL AND KEY
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const { createClient } = supabase;
+const _supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- STATE ---
+let currentQuestionIndex = 0;
+
+// 2. UPDATE THE QUIZ QUESTIONS AND FEEDBACK
+const questions = [
+    {
+        question: "What does a plant need from the sun?",
+        answers: ["Light", "Heat", "Gravity"],
+        correctIndex: 0,
+        feedback: "Correct! Plants need light energy."
+    },
+    {
+        question: "What gas do plants absorb from the air?",
+        answers: ["Oxygen", "Carbon Dioxide (CO2)", "Nitrogen"],
+        correctIndex: 1,
+        feedback: "That's right! They absorb CO2."
+    },
+    {
+        question: "What do plants release as a waste product?",
+        answers: ["Oxygen", "CO2", "Water"],
+        correctIndex: 0,
+        feedback: "Correct! They release Oxygen, which we breathe."
+    }
+];
+
+// --- HTML ELEMENTS ---
+const quizArea = document.getElementById('quiz-area');
+
+// 3. UPDATE ANIMATION SCENES
+function runScene1() {
+    anime({
+        targets: '#sun',
+        opacity: [0, 1],
+        duration: 1000
+    });
+}
+
+function runScene2() {
+    anime({
+        targets: '#sun',
+        scale: 1.2,
+        direction: 'alternate',
+        duration: 400
+    });
+}
+
+function runScene3() {
+     anime({
+        targets: '#plant',
+        scale: 1.1,
+        duration: 400
+    });
+}
+
+async function runFinalScene() {
+    // Example final animation
+    anime({
+        targets: '#sun',
+        translateX: 100,
+        duration: 1000
+    });
+    
+    quizArea.innerHTML = '<h2 style="color: green;">Module Complete!</h2>';
+
+    // --- SAVE PROGRESS TO SUPABASE ---
+    try {
+        const { data: { user } } = await _supabase.auth.getUser();
+        if (user) {
+            const newProgress = {
+                user_id: user.id,
+                // 4. UPDATE THE MODULE NAME (MUST BE UNIQUE)
+                module_name: 'photosynthesis' 
+            };
+            const { error } = await _supabase.from('user_progress').insert(newProgress);
+            if (error) {
+                console.warn("Error saving progress:", error.message);
+            } else {
+                console.log("Progress saved!");
+            }
+        }
+    } catch (e) {
+        console.error("Error saving progress:", e);
+    }
+}
+
+// --- QUIZ LOGIC (No changes needed) ---
+function loadQuestion(index) {
+    if (index >= questions.length) {
+        runFinalScene();
+        return;
+    }
+    const q = questions[index];
+    quizArea.innerHTML = `
+        <h3>Quiz ${index + 1}:</h3>
+        <p>${q.question}</p>
+        <div id="answers"></div>
+        <p id="quiz-feedback"></p>
+    `;
+    const answersContainer = document.getElementById('answers');
+    q.answers.forEach((answer, i) => {
+        answersContainer.innerHTML += 
+            `<button class="answer-btn" onclick="handleAnswer(${i})">${answer}</button>`;
+    });
+}
+
+// 5. UPDATE SCENE TRIGGERS (if needed)
+window.handleAnswer = (selectedIndex) => {
+    const q = questions[currentQuestionIndex];
+    const feedbackEl = document.getElementById('quiz-feedback');
+    const allButtons = document.querySelectorAll('.answer-btn');
+    const clickedButton = allButtons[selectedIndex];
+
+    if (selectedIndex === q.correctIndex) {
+        // --- CORRECT ---
+        feedbackEl.textContent = q.feedback || 'Correct!';
+        feedbackEl.style.color = 'green';
+        allButtons.forEach(btn => btn.disabled = true);
+        clickedButton.classList.add('correct');
+        currentQuestionIndex++; 
+        
+        // Match these scenes to your new function names
+        if (currentQuestionIndex === 1) runScene2();
+        else if (currentQuestionIndex === 2) runScene3();
+        
+        setTimeout(() => {
+            loadQuestion(currentQuestionIndex);
+        }, 1500); 
+        
+    } else {
+        // --- INCORRECT ---
+        feedbackEl.textContent = 'That\'s not it. Try again!';
+        feedbackEl.style.color = 'red';
+        clickedButton.classList.add('wrong');
+        clickedButton.disabled = true;
+    }
+}
+
+// --- START ---
+runScene1();
+loadQuestion(0);
+Step 4: Add the Module to dashboard.htmlOpen dashboard.html. You need to make two changes here.1. Add the HTML Card:Find the "Science" section (<h2 class="subject-header">Science</h2>) and add this new card to the module-grid div.<!-- ... inside <div class="module-grid"> for Science ... -->
+
+<!-- Photosynthesis Module Card -->
+<a href="modules/cbse/10/science/photosynthesis/index.html" class="module-card" id="module-photosynthesis">
+    <div class="module-card-image img-science">Science</div>
+    <div class="module-card-content">
+        <h3>Photosynthesis</h3>
+        <div class="module-card-progress">
+            <span class="icon">○</span>
+            <span class="status-text">Not Started</span>
+        </div>
+    </div>
+</a>
+2. Add the Progress Check:Find the <script> tag at the bottom and go to the loadUserProgress function. Add a new if block to check for your new module.// ... inside async function loadUserProgress(userId) ...
+
+    // Check for 'french-revolution'
+    if (completedModules.includes('french-revolution')) {
+        updateCard('module-french-revolution');
+    }
+
+    // 6. ADD THIS NEW BLOCK
+    // Check for 'photosynthesis'
+    if (completedModules.includes('photosynthesis')) {
+        updateCard('module-photosynthesis');
+    }
+}
+Final Checklist[ ] New folder created in the correct board/grade/subject path.[ ] index.html created and updated (Title, CSS, HTML elements, script name).[ ] .js file created and updated (Supabase keys, questions array, runScene functions, module_name in runFinalScene).[ ] dashboard.html updated (new HTML card added).[ ] dashboard.html script updated (new if block in loadUserProgress).
