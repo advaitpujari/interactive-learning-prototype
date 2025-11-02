@@ -2,38 +2,65 @@
 
 ## Overview
 
-This project is an interactive learning platform designed to provide educational modules for students. It features a main entry point (`index.html`), a user dashboard (`dashboard.html`), and an authentication system (`assets/js/auth.js`).
+This project is an interactive, quiz-based learning platform designed to make education engaging and fun for students. It uses a modular approach, allowing for easy expansion with new subjects and grade levels. The platform features user authentication, a personalized dashboard, and interactive simulations for various educational topics.
 
-The core of the platform is its modular structure, with educational content organized by grade and subject.
+## Features
 
-## File Structure
+*   **User Authentication**: Secure login, signup, and password reset functionality using Supabase.
+*   **Personalized Dashboard**: Displays available and completed modules for the logged-in user.
+*   **Interactive Modules**: Each module combines a quiz with an animated simulation to explain concepts visually.
+*   **Progress Tracking**: User progress is saved to the backend, and completed modules are marked on the dashboard.
+*   **Modular Structure**: Content is organized by curriculum (CBSE, ICSE), grade, and subject, making it easy to add new modules.
 
-The project follows a clear and organized file structure:
+## Getting Started
+
+1.  **Supabase Setup**:
+    *   This project uses Supabase for its backend (authentication and database).
+    *   You will need to create a Supabase project and get your own URL and `anon` key.
+    *   Update the `SUPABASE_URL` and `SUPABASE_KEY` constants in `assets/js/config.js` with your Supabase credentials.
+
+2.  **Running the Platform**:
+    *   No special build process is required.
+    *   Simply open the `index.html` file in a modern web browser.
+
+## Project Structure
+
+The project is organized into the following directories:
 
 ```
 .
-├── index.html            # Main landing page
-├── dashboard.html        # User dashboard
-├── README.md             # Project summary
+├── index.html              # Main login/signup page
+├── dashboard.html          # User dashboard, displays modules
+├── profile.html            # User profile page
+├── README.md               # This file
 ├── assets/
-│   ├── css/main.css      # Main stylesheet
-│   └── js/auth.js        # Authentication logic
+│   ├── css/                # Stylesheets
+│   │   ├── main.css
+│   │   └── auth.css
+│   └── js/                 # JavaScript files
+│       ├── auth.js         # Handles login, signup, etc.
+│       └── config.js       # Supabase configuration
 └── modules/
-    └── grade10/
-        └── science/
-            ├── gravity/      # Module: Gravity
-            │   ├── index.html
-            │   └── gravity.js
-            └── nacl_reaction/ # Module: NaCl Reaction
-                ├── index.html
-                └── simulation.js
+    ├── cbse/
+    │   └── grade10/
+    │       ├── history/
+    │       │   └── french-revolution/
+    │       └── science/
+    │           ├── gravity/
+    │           ├── light/
+    │           └── nacl-reaction/
+    └── icse/
+        └── ... (coming soon)
 ```
 
-## Key Modules
+## Available Modules
 
-The platform currently includes the following learning modules for 10th-grade science:
+### CBSE - Grade 10
 
-*   **Gravity**: Located in `modules/grade10/science/gravity/`, this module likely provides an interactive lesson or simulation about gravity.
-*   **NaCl Reaction**: Located in `modules/grade-10/science/nacl_reaction/`, this module probably features a simulation of a Sodium Chloride chemical reaction.
+#### Science
+*   **The Na + Cl Reaction**: An interactive simulation of the sodium and chlorine reaction.
+*   **Understanding Gravity**: A module explaining the concepts of gravity.
+*   **Light, Reflection & Refraction**: A module with an animated simulation of the Law of Reflection.
 
-This modular approach allows for easy expansion with new subjects, grades, and lessons.
+#### History
+*   **The French Revolution**: A quiz-based module on the French Revolution.
