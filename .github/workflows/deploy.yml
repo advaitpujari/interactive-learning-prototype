@@ -1,0 +1,58 @@
+# Name of the workflow
+name: Deploy shikshAI to GitHub Pages
+
+# Run this workflow on every push to the 'main' branch
+on:
+  push:
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Set permissions for the GITHUB_TOKEN
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, cancel older runs
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out your repository
+        uses: actions/checkout@v4
+      
+      # This is the magic step:
+      - name: Create config.js from Secrets
+        run: |
+          # Create the directory if it doesn't exist
+          mkdir -p assets/js
+          # Write the secrets into the config.js file
+          echo "const SUPABASE_URL = '${{ secrets.SUPABASE_URL }}';" > assets/js/config.js
+          echo "const SUPABASE_KEY = '${{ secrets.SUPABASE_KEY }}';" >> assets/js/config.js
+        
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload the entire root directory
+          path: '.'
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
